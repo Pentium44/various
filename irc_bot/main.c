@@ -202,6 +202,16 @@ int main(int argc, char **argv) {
 	nick = argv[3];
 	owner = argv[4];
 
+	if(strlen(nick)>48) {
+		printf("Error: irc bot nickname too long\n");
+		exit(1);
+	}
+	
+	if(strlen(owner)>48) {
+		printf("Error: bot owner nickname too long\n");
+		exit(1);
+	}
+
 	/* write to buffer */
 	sprintf(c, "NICK %s\r\n", nick);
 	irc_send(socketfd, c);
