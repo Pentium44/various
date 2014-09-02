@@ -79,9 +79,22 @@ char *process_string(char *in, int n) {
 						msg++;
 						
 					int k;	
+					
+					char *usestr = NULL;
+					char *searchstr;
 					for(k=0;dictionary[k].quote != 0;k++) {
-						if(strncmp(msg, dictionary[k].quote, 
-							strlen(dictionary[k].quote))==0) {
+						if(strncmp(bot_nick_exists(dictionary[k].quote, nick), "0", 1)) {
+							usestr = str_replace(dictionary[k].quote,
+											"*bot*", nick);
+						}
+						
+						if(usestr==NULL) {
+							searchstr = dictionary[k].quote;
+						} else {
+							searchstr = usestr;
+						}
+						
+						if(strncmp(msg, searchstr, strlen(searchstr))==0) {
 							sprintf(b,"PRIVMSG %s :%s, %s\r\n",chan,
 								name,dictionary[k].reply);
 							return b;	
