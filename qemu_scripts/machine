@@ -1,0 +1,48 @@
+#!/bin/sh
+
+LOADLIMIT=30
+CMD="qemu-system-i386"
+MEMS=128
+
+case $1 in 
+	status )
+			case $2 in
+				html )
+					if ps -p $(cat pids/$3.pid) > /dev/null 
+					then
+						echo "<div style='display:inline;color:#00ff00;'>Running</div>"
+					else
+						echo "<div style='display:inline;color:#ff0000;'>Stopped</div>"
+					fi
+				;;
+				
+				return )
+					if ps -p $(cat pids/$3.pid) > /dev/null 
+					then
+						echo "1"
+					else
+						echo "0"
+					fi
+				;;
+			esac
+			;;
+	start )
+		echo "Starting VM $2..."
+		$CMD -daemonize -nographic -hda disks/$2.img -m ${MEMS}M -net nic,model=e1000,vlan=0,vlan=1 -net user,vlan=0,vlan=1,hostfwd=tcp::${2}280-:80,hostfwd=tcp::${2}222-:22 -pidfile pids/$2.pid
+		cpulimit --pid $(cat pids/$2.pid) --limit $LOADLIMIT_SMALL > /dev/null &
+		echo "Started!"
+		;;
+
+	stopall )
+		killall $CMD
+		;;
+
+	stop ) 
+		echo "Stopping VM $2"
+		kill -TERM $(cat pids/$2.pid)
+		echo "Stopped!";;
+
+	* )
+ 		echo "Usage: machine {start|status|stop|stopall} {_|html|return} [vm id]";;
+esac
+

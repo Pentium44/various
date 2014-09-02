@@ -1,0 +1,46 @@
+#!/bin/sh
+# Clest 0.0.1a - This program is in its beta stages
+# (C) Chris Dorman, 2014 - Some rights reserved
+# GPLv3
+
+PATH="$PATH:`pwd`"
+
+case $1 in
+	start ) daemon.sh start > /dev/null &
+		echo $! > clest.pid;;
+	stop ) kill -TERM $(cat clest.pid);;
+	nb )
+		if [ -z "$2" ]; then
+			echo "Please specify a title, exiting..."
+			exit 1
+		fi
+		
+		if [ -z "$3" ]; then
+			echo "Please specify some content, exiting..."
+			exit 1
+		fi
+		
+		echo "$2" >> data/btitle
+		echo "$3" >> data/b
+		echo "Clest: Posted!"
+		;;
+	
+	np )
+		if [ -z "$2" ]; then
+			echo "Please specify a title, exiting..."
+			exit 1
+		fi
+		
+		if [ -z "$3" ]; then
+			echo "Please specify some content, exiting..."
+			exit 1
+		fi
+		
+		echo "$2" >> data/ptitle
+		echo "$3" >> data/p
+		echo "Clest: Page added!"
+		;;
+	* ) echo "Usage : ** {start|stop}
+Blog  : ** nb \"TITLE\" \"CONTENT\"	
+Page  : ** np \"NAME\" \"CONTENT\" ";;
+esac
