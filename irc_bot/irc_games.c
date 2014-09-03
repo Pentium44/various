@@ -5,7 +5,7 @@
 int gtn_setplayerstart() {
 	struct gn guessnum;
 	char *somestr = "0";
-	memcpy(guessnum.player, somestr, strlen(somestr));
+	strncpy(guessnum.player, somestr, strlen(somestr));
 	return 0;
 }
 
@@ -23,8 +23,8 @@ int gtn_init(char *nick) {
 	}
 	
 	sprintf(numstr, "%d", i);
-	memcpy(guessnum.num, numstr, strlen(numstr));
-	memcpy(guessnum.player, nick, strlen(nick));
+	strncpy(guessnum.num, numstr, strlen(numstr));
+	strncpy(guessnum.player, nick, strlen(nick));
 	
 	return 0;
 }
@@ -43,7 +43,7 @@ int gtn_guess(int numguess, char *nick) {
 	if(atoi(guessnum.num)==numguess) {
 		// Keep the game environment clean
 		char *somestr = "0";
-		memcpy(guessnum.player, somestr, strlen(somestr));
+		strncpy(guessnum.player, somestr, strlen(somestr));
 		return 0;
 	}
 	
