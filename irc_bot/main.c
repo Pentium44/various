@@ -101,6 +101,51 @@ char *process_string(char *in, int n) {
 						}
 					}
 					
+					if(strncmp(msg, "@gtn", 4)==0) {
+						
+						int ret = gtn_init(name);
+						if(ret==0) {
+							sprintf(b,"PRIVMSG %s :%s is playing guess the number!\r\n", chan, name);
+							return b;
+						} else if(ret==2) {
+							sprintf(b,"PRIVMSG %s :Someone else is playing guess the number!\r\n", chan);
+							return b;
+						} else {
+							sprintf(b,"PRIVMSG %s :You need to provide a nickname to play!\r\n", chan);
+							return b;
+						}
+					}
+					
+					if(strncmp(msg, "@guess", 6)==0) {
+						e = strchr(msg, ' ');
+						if(!e)
+							return nothing;
+						if(e)
+							e++;
+						
+						if(strlen(e)>11) {
+							sprintf(b,"PRIVMSG %s :%s, number to long!\r\n", chan, name);
+						}
+						
+						int ret = gtn_guess(atoi(e), name);
+						if(ret==0) {
+							sprintf(b,"PRIVMSG %s :%s: Correct!\r\n", chan, name);
+							return b;
+						} else if(ret==2) {
+							sprintf(b,"PRIVMSG %s :No one is playing guess the number. Start with @gtn\r\n", chan);
+							return b;
+						} else if(ret==4) {
+							sprintf(b,"PRIVMSG %s :%s higher.\r\n", chan, name);
+							return b;
+						} else if(ret==3) {
+							sprintf(b,"PRIVMSG %s :%s lower.\r\n", chan, name);
+							return b;
+						} else if(ret==1) {
+							sprintf(b,"PRIVMSG %s :%s, you're not playing right now.\r\n", chan, name);
+							return b;
+						}
+					}
+					
 					if(strncmp(msg, "@join", 5)==0) {
 						e = strchr(msg, ' ');
 						if(!e)
@@ -211,6 +256,9 @@ int main(int argc, char **argv) {
 		printf("Error: bot owner nickname too long\n");
 		exit(1);
 	}
+
+	/* initialize irc games */
+	(void)gtn_setplayerstart();
 
 	/* write to buffer */
 	sprintf(c, "NICK %s\r\n", nick);

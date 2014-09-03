@@ -57,3 +57,8 @@ char *bot_nick_exists(char *str, char *nick) {
 	}
 	return "1";
 }
+
+int rand_int() {
+	int r = rand() % 50;
+	return r+1;
+}
