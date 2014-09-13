@@ -2,7 +2,7 @@
 
 CC=gcc
 EXECUTABLE=bot
-OBJECTS=irc.o functions.o main.o irc_games.o
+OBJECTS=irc.o functions.o main.o
 FLAGS=-Wall
 
 all: main
