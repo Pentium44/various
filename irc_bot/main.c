@@ -36,6 +36,7 @@ char *process_string(char *in, int n) {
 				char *cmd;
 				char *chan;
 				char *e;
+				char *pass;
 				char *msg;
 				char *b = malloc(512);
 
@@ -101,20 +102,6 @@ char *process_string(char *in, int n) {
 						}
 					}
 					
-					
-					if(strncmp(msg, "@join", 5)==0) {
-						e = strchr(msg, ' ');
-						if(!e)
-							return nothing;
-						if(e)
-							e++;
-						
-						sprintf(b,"JOIN %s\r\nPRIVMSG %s :Hi!\r\n",
-							remove_creturn(e),remove_creturn(e));
-						return b;
-						*e = 0;
-					}
-					
 					if(strncmp(msg, "@die", 4)==0) {
 						if(strncmp(name, owner, strlen(owner))==0) {
 							sprintf(b,"QUIT :Died\r\n");
@@ -125,7 +112,43 @@ char *process_string(char *in, int n) {
 						}
 					}
 					
-					if(strncmp(msg, "@op", 3)==0) {
+					if(strncmp(msg, "@claim", 6)==0) {
+						e = strchr(msg, ' ');
+						if(!e) {
+							sprintf(b,"PRIVMSG %s :You must provide a username.\r\n", name);
+							return b;
+						}
+						if(e)
+							e++;
+						
+						pass = strtok(e, " ");
+						pass = strtok(NULL, " ");
+						if(!pass) {
+							sprintf(b,"PRIVMSG %s :You must provide your password to claim your nickname!\r\n", name);
+							return b;
+						}
+						
+						if(strncmp(e, nick, strlen(nick))==0) {
+							sprintf(b,"PRIVMSG %s :Cannot claim %s\r\n", name, nick);
+							return b;
+						}
+						
+						if(check_user_passwd(e, remove_creturn(pass), "./users.log")==2) {
+							sprintf(b,"PRIVMSG %s :This user does not exist\r\n", name);
+							return b;
+						}
+						if(check_user_passwd(e, remove_creturn(pass), "./users.log")==1) {
+							sprintf(b,"PRIVMSG %s :Wrong password. (%s)\r\n", name, pass);
+							return b;
+						}
+						
+						sprintf(b,"SETNICK %s\r\n", remove_creturn(e));
+						return b;
+						
+						
+					}
+					
+					if(strncmp(msg, "@grab", 5)==0) {
 						
 						e = strchr(msg, ' ');
 						if(!e)
@@ -133,48 +156,55 @@ char *process_string(char *in, int n) {
 						if(e)
 							e++;
 						
-						if(strncmp(name, owner, strlen(owner))==0) {
-							sprintf(b,"MODE %s +o %s\r\n", chan, remove_creturn(e));
+						pass = strtok(e, " ");
+						pass = strtok(NULL, " ");
+						if(!pass) {
+							sprintf(b,"PRIVMSG %s :You must provide a password to grab a channel!\r\n", name);
+							return b;
+						}
+							
+						if(check_user_passwd(name, remove_creturn(pass), "./users.log")==2) {
+							sprintf(b,"PRIVMSG %s :You are not registered, see @help\r\n", name);
+							return b;
+						}
+						if(check_user_passwd(name, remove_creturn(pass), "./users.log")==1) {
+							sprintf(b,"PRIVMSG %s :Wrong password. (%s)\r\n", name, pass);
+							return b;
+						}
+						
+						if(set_channel_owner(name, e, "./owners.log")==0) {
+							sprintf(b,"PRIVMSG %s :You now own %s\r\n", name, e);
 							return b;
 						} else {
-							sprintf(b,"PRIVMSG %s :You are not my owner, you cannot OP others.\r\n", name);
+							sprintf(b,"PRIVMSG %s :Failed to set you as owner (%s)\r\n", name, remove_creturn(e));
 							return b;
 						}
 					}
 					
-					if(strncmp(msg, "@deop", 5)==0) {
+					if(strncmp(msg, "@register", 9)==0) {
 						
 						e = strchr(msg, ' ');
-						if(!e)
-							return nothing;
+						if(!e) {
+							sprintf(b,"PRIVMSG %s :You must provide a password.\r\n", name);
+							return b;
+						}
 						if(e)
 							e++;
 						
-						if(strncmp(name, owner, strlen(owner))==0) {
-							sprintf(b,"MODE %s -o %s\r\n", chan, remove_creturn(e));
+						if(check_user_passwd(name, remove_creturn(e), "./users.log")!=2) {
+							sprintf(b,"PRIVMSG %s :This user already exists.\r\n", name);
+							return b;
+						}
+						
+						if(register_nick(name, remove_creturn(e), "./users.log")==0) {
+							sprintf(b,"PRIVMSG %s :You now own %s (password: %s)\r\n", name, name, remove_creturn(e));
 							return b;
 						} else {
-							sprintf(b,"PRIVMSG %s :You are not my owner, you cannot DeOP others.\r\n", name);
+							sprintf(b,"PRIVMSG %s :Failed to register %s\r\n", name, name);
 							return b;
 						}
 					}
 					
-					if(strncmp(msg, "@leave", 6)==0) {
-						e = strchr(msg, ' ');
-						if(!e)
-							return nothing;
-						if(e)
-							e++;
-						
-						if(strncmp(name, owner, strlen(owner))==0) {
-							sprintf(b,"PART %s :Bye!\r\n",remove_creturn(e));
-							return b;
-						} else {
-							return nothing;
-						}
-						
-						*e = 0;
-					}
 					return nothing;
 				} else {
 					return nothing;
@@ -218,6 +248,11 @@ int main(int argc, char **argv) {
 	irc_send(socketfd, c);
 	sprintf(c, "USER %s %s %s :%s\r\n", nick, nick, nick, nick);
 	irc_send(socketfd, c);
+
+	/* do the service jobs */
+	if(set_channels(socketfd, "./channels.log") == 2) {
+		return 1;
+	}
 
 	while(1) {
 		in[0] = 0;

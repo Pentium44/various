@@ -1,0 +1,4 @@
+--- WelNet ---
+WelNet powered by GNU/Linux
+
+Join #welnet !

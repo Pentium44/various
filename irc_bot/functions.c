@@ -1,5 +1,6 @@
 #include "main.h"
 #include "functions.h"
+#include "irc.h"
 
 /* Remove carriage return from string */
 const char *remove_creturn(char *str) {
@@ -61,4 +62,110 @@ char *bot_nick_exists(char *str, char *nick) {
 int rand_int() {
 	int r = rand() % 50;
 	return r+1;
+}
+
+int set_channels(int fd, char *filefd) {
+	FILE *filename = fopen(filefd, "r");
+	char *search = "¤";
+	
+	if(filename != NULL) {
+		/* buffer for each topic line */
+		char line[2048];
+		char topic[2048];
+		char channel[256];
+		char sendbuf[2305];
+		
+		/* read the file */
+		while(fgets(line, sizeof(line), filename) != NULL) {
+			
+			if(strncmp("\n", line, 1)==0) {
+				continue;
+			}
+			
+			char *linetok = strtok(line, search);
+			
+			/* join channel before changing topic */
+			sprintf(sendbuf, "JOIN %s\r\n", linetok);
+			irc_send(fd, sendbuf);
+			sprintf(channel, "%s", linetok);
+			
+			linetok = strtok(NULL, search);
+			sprintf(topic, "%s", linetok);
+			
+			sprintf(sendbuf, "TOPIC %s :%s\r\n", channel, topic);
+			irc_send(fd, sendbuf);
+		}
+		
+	}
+	else
+	{
+		return 1;
+	}
+	return 0;
+}
+
+int set_channel_owner(char *owner, const char *channel, char *filefd) {
+	FILE *file;
+	
+	char line[1024];
+	if((file = fopen(filefd, "r"))) {
+		while(fgets(line, sizeof(line), file)!=NULL) {
+			char *dotok = strtok(line, " ");
+			if(strncmp(channel, dotok, strlen(channel))==0) {
+				fclose(file);
+				return 1;
+			}
+		}
+		fclose(file);
+	}
+	
+	if((file = fopen(filefd, "a"))) {
+		fprintf(file, "%s %s\n", channel, owner);
+		fclose(file);
+		return 0;
+	}
+	
+	return 1;
+}
+
+int check_user_passwd(char *nick, const char *pass, char *filefd) {
+	FILE *file;
+	
+	char line[1024];
+	if((file = fopen(filefd, "r"))) {
+		while(fgets(line, sizeof(line), file)!=NULL) {
+			/* check if user exists */
+			char *dotok = strtok(line, " ");
+			if(strncmp(nick, dotok, strlen(nick))==0) {
+				dotok = strtok(NULL, " ");
+				if(strncmp(pass, dotok, strlen(pass))==0) {
+					/* password correct */
+					fclose(file);
+					return 0;
+				}
+				else
+				{
+					/* password incorrect */
+					fclose(file);
+					return 1;
+				}
+			}
+		}
+		fclose(file);
+	}
+	
+	/* user does not exist */
+	return 2;
+}
+
+int register_nick(char *nick, const char *pass, char *filefd) {
+	FILE *file;
+	
+	if((file = fopen(filefd, "a"))) {
+		fprintf(file, "%s %s\n", nick, pass);
+		fclose(file);
+		return 0;
+	}
+	
+	return 1;
 }
