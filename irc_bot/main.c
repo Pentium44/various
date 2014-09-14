@@ -112,6 +112,22 @@ char *process_string(char *in, int n) {
 						}
 					}
 					
+					/*if(strncmp(msg, "@topic", 4)==0) {
+						if(strncmp(name, owner, strlen(owner))==0) {
+							(void)set_topic(e, topic, "./channels.log");
+							sprintf(b,"PRIVMSG %s :Topic set.\r\n", name);
+							return b;
+						} else {
+							sprintf(b,"PRIVMSG %s :You are not the owner, you cannot set topics.\r\n", name);
+							return b;
+						}
+					}*/
+					
+					if(strncmp(msg, "@help", 5)==0) {
+						sprintf(b,"PRIVMSG %s :---HELP---\r\nPRIVMSG %s :@register <password> - Register your username\r\nPRIVMSG %s :@grab <channel> <user password> - Register IRC channel to your nickname\r\nPRIVMSG %s :@claim <nickname> <user password> - Release your nickname if someone else signs in with it.\r\n", name, name, name, name);
+						return b;
+					}
+					
 					if(strncmp(msg, "@claim", 6)==0) {
 						e = strchr(msg, ' ');
 						if(!e) {

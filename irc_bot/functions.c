@@ -158,6 +158,32 @@ int check_user_passwd(char *nick, const char *pass, char *filefd) {
 	return 2;
 }
 
+/*
+int set_topic(char *channel, char *topic, char *filefd) {
+	FILE *file;
+	
+	char line[1024];
+	if((file = fopen(filefd, "r"))) {
+		while(fgets(line, sizeof(line), file)!=NULL) {
+			char *dotok = strtok(line, " ");
+			if(strncmp(channel, dotok, strlen(channel))==0) {
+				dotok = strtok(line, " ");
+				
+			}
+		}
+		fclose(file);
+	}
+	
+	if((file = fopen(filefd, "a"))) {
+		fprintf(file, "%s %s\n", channel, owner);
+		fclose(file);
+		return 0;
+	}
+	
+	return 1;
+}
+*/
+
 int register_nick(char *nick, const char *pass, char *filefd) {
 	FILE *file;
 	
