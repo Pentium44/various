@@ -146,8 +146,7 @@ char *process_string(char *in, int n) {
 							return b;
 						}
 						if(pass)
-							pass++;
-						*pass = 0;
+							*pass = 0;
 						
 						topic = strchr(pass+1, ' ');
 						
@@ -156,10 +155,9 @@ char *process_string(char *in, int n) {
 							return b;
 						}
 						if(topic)
-							topic++;
-						*topic = 0;
+							*topic = 0;
 						
-						topic = strchr(topic, '"');
+						topic = strchr(topic+1, '"');
 						
 						if(!topic) {
 							sprintf(b,"PRIVMSG %s :Provide your topic in quotes! (Ex: \"this topic is what it is\")\r\n", name);
@@ -175,11 +173,9 @@ char *process_string(char *in, int n) {
 							return b;
 						}
 						if(e)
-							e++;
+							*e = 0;
 						
-						*e = 0;
-						
-						sprintf(b,"PRIVMSG %s :Channel: %s, Topic: \"%s\", Password: %s\r\n", topicchan,  remove_creturn(pass));
+						sprintf(b,"PRIVMSG %s :Channel: %s, Topic: \"%s\", Password: %s\r\n",name , topicchan, topic, pass);
 						return b;
 						
 					}
