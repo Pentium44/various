@@ -40,7 +40,7 @@ char *process_string(char *in, int n) {
 				char *topic;
 				char *topicchan;
 				char *msg;
-				char *b = malloc(512);
+				char *b = malloc(1024);
 
 				name = buf+1;
 				e = strchr(name,'!');
@@ -138,17 +138,8 @@ char *process_string(char *in, int n) {
 						}
 						if(topicchan)
 							topicchan++;
-						
-						pass = strchr(topicchan, ' ');
-						
-						if(!pass) {
-							sprintf(b,"PRIVMSG %s :Need your password, required to make sure you are the channel owner.\r\n", name);
-							return b;
-						}
-						if(pass)
-							*pass = 0;
-						
-						topic = strchr(pass+1, ' ');
+
+						topic = strchr(topicchan, ' ');
 						
 						if(!topic) {
 							sprintf(b,"PRIVMSG %s :Provide a topic\r\n", name);
@@ -157,15 +148,19 @@ char *process_string(char *in, int n) {
 						if(topic)
 							*topic = 0;
 						
-						topic = strchr(topic+1, '"');
+						topic++;
+						
+						topic = strchr(topic, '"');
 						
 						if(!topic) {
 							sprintf(b,"PRIVMSG %s :Provide your topic in quotes! (Ex: \"this topic is what it is\")\r\n", name);
 							return b;
 						}
-						if(topic)
+						if(topic) {
+							*topic = 0;
 							topic++;
-							
+						}
+						
 						e = strchr(topic, '"');
 						
 						if(!e) {
@@ -175,8 +170,21 @@ char *process_string(char *in, int n) {
 						if(e)
 							*e = 0;
 						
-						sprintf(b,"PRIVMSG %s :Channel: %s, Topic: \"%s\", Password: %s\r\n",name , topicchan, topic, pass);
-						return b;
+						if(strncmp(name, owner, strlen(owner))!=0) {
+							sprintf(b,"PRIVMSG %s :You're not the service owner!\r\n", name);
+							return b;
+						} else {
+							if(set_topic(topicchan, topic, "./channels.log")==0) {
+								
+								sprintf(b,"JOIN %s\r\nTOPIC %s :%s\r\nPRIVMSG %s :Topic for %s set to \"%s\".\r\n", topicchan, topicchan, topic, name, topicchan, topic);
+								return b;
+							}
+							else
+							{
+								sprintf(b,"PRIVMSG %s :Error setting channel topic!\r\n", name);
+								return b;
+							}
+						}
 						
 					}
 					
