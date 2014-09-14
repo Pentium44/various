@@ -257,6 +257,27 @@ char *process_string(char *in, int n) {
 						}
 					}
 					
+					if(strncmp(msg, "@login", 6)==0) {
+						
+						e = strchr(msg, ' ');
+						if(!e)
+							return nothing;
+						if(e)
+							e++;
+						
+						if(check_user_passwd(name, remove_creturn(e), "./users.log")==2) {
+							sprintf(b,"PRIVMSG %s :You are not registered, see @help\r\n", name);
+							return b;
+						}
+						if(check_user_passwd(name, remove_creturn(e), "./users.log")==1) {
+							sprintf(b,"PRIVMSG %s :Wrong password. (%s)\r\n", name, remove_creturn(e));
+							return b;
+						}
+						
+						sprintf(b,"HOST %s\r\nPRIVMSG %s :You're now known as %s (hidden/%s)\r\n", name, name, name, name);
+						return b;
+					}
+					
 					if(strncmp(msg, "@register", 9)==0) {
 						
 						e = strchr(msg, ' ');
