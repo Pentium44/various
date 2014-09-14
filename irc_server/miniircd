@@ -295,6 +295,13 @@ class Client(object):
 
         def lusers_handler():
             self.send_lusers()
+            
+        def hostname_handler():
+            username = arguments[0]
+            if self.nickname != serverowner:
+                return
+            user = server.get_client(username)
+            server.service_change_hostname(user)
 
         def mode_handler():
             if len(arguments) < 1:
@@ -361,7 +368,7 @@ class Client(object):
             username = arguments[0]
             user = server.get_client(username)
             if self.nickname != serverowner:
-				return
+                return
             elif user:
                 lst = [random.choice(string.digits) for n in xrange(6)]
                 randstr = ''.join(lst)
@@ -543,6 +550,7 @@ class Client(object):
             "JOIN": join_handler,
             "LIST": list_handler,
             "LUSERS": lusers_handler,
+            "HOST": hostname_handler,
             "MODE": mode_handler,
             "MOTD": motd_handler,
             "NICK": nick_handler,
@@ -745,6 +753,9 @@ class Server(object):
 
     def print_error(self, msg):
         sys.stderr.write("%s\n" % msg)
+
+    def service_change_hostname(self, client):
+        client.host = "hidden/"+client.nickname
 
     def client_changed_nickname(self, client, oldnickname):
         if oldnickname:

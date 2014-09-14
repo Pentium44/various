@@ -1,4 +1,4 @@
 --- WelNet ---
 WelNet powered by GNU/Linux
-
-Join #welnet !
+Join #welnet for help, problems, and/or ideas.
+http://irc.cddo.cf
