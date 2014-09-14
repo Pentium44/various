@@ -37,6 +37,8 @@ char *process_string(char *in, int n) {
 				char *chan;
 				char *e;
 				char *pass;
+				char *topic;
+				char *topicchan;
 				char *msg;
 				char *b = malloc(512);
 
@@ -126,6 +128,60 @@ char *process_string(char *in, int n) {
 					if(strncmp(msg, "@help", 5)==0) {
 						sprintf(b,"PRIVMSG %s :---HELP---\r\nPRIVMSG %s :@register <password> - Register your username\r\nPRIVMSG %s :@grab <channel> <user password> - Register IRC channel to your nickname\r\nPRIVMSG %s :@claim <nickname> <user password> - Release your nickname if someone else signs in with it.\r\n", name, name, name, name);
 						return b;
+					}
+					
+					if(strncmp(msg, "@topic", 6)==0) {
+						topicchan = strchr(msg, ' ');
+						if(!topicchan) {
+							sprintf(b,"PRIVMSG %s :You must provide a channel!.\r\n", name);
+							return b;
+						}
+						if(topicchan)
+							topicchan++;
+						
+						pass = strchr(topicchan, ' ');
+						
+						if(!pass) {
+							sprintf(b,"PRIVMSG %s :Need your password, required to make sure you are the channel owner.\r\n", name);
+							return b;
+						}
+						if(pass)
+							pass++;
+						*pass = 0;
+						
+						topic = strchr(pass+1, ' ');
+						
+						if(!topic) {
+							sprintf(b,"PRIVMSG %s :Provide a topic\r\n", name);
+							return b;
+						}
+						if(topic)
+							topic++;
+						*topic = 0;
+						
+						topic = strchr(topic, '"');
+						
+						if(!topic) {
+							sprintf(b,"PRIVMSG %s :Provide your topic in quotes! (Ex: \"this topic is what it is\")\r\n", name);
+							return b;
+						}
+						if(topic)
+							topic++;
+							
+						e = strchr(topic, '"');
+						
+						if(!e) {
+							sprintf(b,"PRIVMSG %s :Close your topic quotes!\r\n", name);
+							return b;
+						}
+						if(e)
+							e++;
+						
+						*e = 0;
+						
+						sprintf(b,"PRIVMSG %s :Channel: %s, Topic: \"%s\", Password: %s\r\n", topicchan,  remove_creturn(pass));
+						return b;
+						
 					}
 					
 					if(strncmp(msg, "@claim", 6)==0) {
