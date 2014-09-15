@@ -133,8 +133,8 @@ class Client(object):
 
     def check_aliveness(self):
         now = time.time()
-        if self.__timestamp + 180 < now:
-            self.disconnect("ping timeout")
+        if self.__timestamp + 245 < now:
+            self.disconnect("Ping timeout: 245 seconds")
             return
         if not self.__sent_ping and self.__timestamp + 90 < now:
             if self.__handle_command == self.__command_handler:
@@ -143,7 +143,7 @@ class Client(object):
                 self.__sent_ping = True
             else:
                 # Not registered.
-                self.disconnect("ping timeout")
+                self.disconnect("Ping timeout")
 
     def write_queue_size(self):
         return len(self.__writebuffer)
