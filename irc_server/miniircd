@@ -303,6 +303,12 @@ class Client(object):
             user = server.get_client(username)
             server.service_change_hostname(user)
 
+        def kick_handler():
+            username = arguments[0]
+            if self.nickname != serverowner:
+                return
+            user = server.get_client(username)
+            server.service_change_hostname(user)
         def mode_handler():
             if len(arguments) < 1:
                 self.reply_461("MODE")

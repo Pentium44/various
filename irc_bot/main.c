@@ -28,6 +28,7 @@ char *process_string(char *in, int n) {
 			in[n] = 0;
 			if (!strncmp(buf, "PING", 4)) {
 				buf[1] = 'O';
+				sleep(2);
 				return buf;
 			}
 

@@ -66,6 +66,7 @@ int rand_int() {
 
 int set_channels(int fd, char *filefd) {
 	FILE *filename = fopen(filefd, "r");
+	
 	char *search = "¤";
 	
 	if(filename != NULL) {
