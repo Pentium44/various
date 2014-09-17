@@ -136,7 +136,7 @@ class Client(object):
         if self.__timestamp + 245 < now:
             self.disconnect("Ping timeout: 245 seconds")
             return
-        if not self.__sent_ping and self.__timestamp + 90 < now:
+        if not self.__sent_ping and self.__timestamp + 180 < now:
             if self.__handle_command == self.__command_handler:
                 # Registered.
                 self.message("PING :%s" % self.server.name)
