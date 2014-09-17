@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WelNet - Open ruled IRC server!</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8;">
+	<link rel="stylesheet" type="text/css" href="styles/style.css">
+</head>
+<body>
+	<div class="container">
+		<div id="header">
+			<div id="title">
+				WelNet - Free &amp; Open Ruled IRC!
+			</div>
+			<div id="nav">
+				<ul>
+					<li><a href="index.cgi">Home</a></li>
+					<li><a href="info.cgi">Information</a></li>
+					<li><b class="infobar">Latest channel @ irc.cddo.cf: #welnet</b></li>
+				</ul>
+			</div>
+		</div>
+		<div id="inner">
