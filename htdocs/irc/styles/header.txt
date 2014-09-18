@@ -15,7 +15,7 @@
 				<ul>
 					<li><a href="index.cgi">Home</a></li>
 					<li><a href="info.cgi">Information</a></li>
-					<li><b class="infobar">Latest channel @ irc.cddo.cf: #welnet</b></li>
+					<li><b class="infobar">Latest channel: #welnet @ irc.welnetirc.ml/6677</b></li>
 				</ul>
 			</div>
 		</div>

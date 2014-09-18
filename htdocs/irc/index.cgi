@@ -10,7 +10,7 @@ echo "WelNet is setup for people who want to chat with comfort. I have been on m
 echo "<br><br>"
 echo "<h3>Connect!</h3>"
 echo "
-Address/port: irc.cddo.cf/6667<br>
+Address/port: irc.welnetirc.ml/6677<br>
 Common channels: #welnet; #programming.
 "
 
