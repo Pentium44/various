@@ -20,7 +20,7 @@
 #
 # Joel Rosdahl <joel@rosdahl.net>
 
-VERSION = "0.4"
+VERSION = "0.4.1-custom"
 
 serverowner = "Kiriashi"
 
@@ -133,6 +133,10 @@ class Client(object):
 
     def check_aliveness(self):
         now = time.time()
+        # BUG: When server's under load, timeouts fly...
+        # Services shouldn't become unresponsive unless disconnected...
+        if self.nickname == serverowner:
+            return
         if self.__timestamp + 245 < now:
             self.disconnect("Ping timeout: 245 seconds")
             return

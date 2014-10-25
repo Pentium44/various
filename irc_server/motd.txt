@@ -1,4 +1,20 @@
---- WelNet ---
+   ------------------
+------ WelNet IRC ------
+   ------------------
 WelNet powered by GNU/Linux
-Join #welnet for help, problems, and/or ideas.
-http://irc.cddo.cf
+Join #welnet for general descussion.
+Join #help for WelNet community help.
+Feel free to create a channel :)
+
+http://www.welnetirc.ml
+
+Welcome to...
+ _    _    _   ______   _        _     _   ______   _______   _
+/ \  / \  / \ / _____/ / \      / \   / \ / _____/ /__   __\ / \
+| |  | |  | | | \__    | |      |  \  | | | \__       | |    | |
+| |  | |  | | |  __|   | |      | | \ | | |  __|      | |    | |
+| |  | |  | | | /      | |      | |\ \| | | /         | |    \_/
+| \__/ \__/ | | |____  | \____  | | \ | | | |____     | |     _
+\___________/ \______\ \______\ \_/  \__/ \______\    \_/    [_]
+
+
