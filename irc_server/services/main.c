@@ -127,7 +127,7 @@ char *process_string(char *in, int n) {
 					}*/
 					
 					if(strncmp(msg, "@help", 5)==0) {
-						sprintf(b,"PRIVMSG %s :---HELP---\r\nPRIVMSG %s :@register <password> - Register your username\r\nPRIVMSG %s :@grab <channel> <user password> - Register IRC channel to your nickname\r\nPRIVMSG %s :@claim <nickname> <user password> - Release your nickname if someone else signs in with it.\r\n", name, name, name, name);
+						sprintf(b,"PRIVMSG %s :---HELP---\r\nPRIVMSG %s :@register <password> - Register your username\r\nPRIVMSG %s :@claim <channel> <user password> - Register IRC channel to your nickname\r\nPRIVMSG %s :@release <nickname> <user password> - Release your nickname if someone else logs on with it.\r\nPRIVMSG %s :@topic <channel> \"<channel topic>\" <user password> - Set your channel topic if you own the channel.\r\n", name, name, name, name, name);
 						return b;
 					}
 					
@@ -168,28 +168,45 @@ char *process_string(char *in, int n) {
 							sprintf(b,"PRIVMSG %s :Close your topic quotes!\r\n", name);
 							return b;
 						}
-						if(e)
-							*e = 0;
 						
-						if(strncmp(name, owner, strlen(owner))!=0) {
-							sprintf(b,"PRIVMSG %s :You're not the service owner!\r\n", name);
+						/*
+						if(e) {
+							*e = 0;
+						}
+						*/
+						
+						char *pass = strtok(e, " ");
+						
+						pass = strtok(NULL, " ");
+						
+						if(!pass) {
+							sprintf(b,"PRIVMSG %s :Please provide your password!\r\n", name);
+							return b;
+						}
+						
+						if(check_user_passwd(name, remove_creturn(pass), "./users.log")==2) {
+							sprintf(b,"PRIVMSG %s :This user is not registered.\r\n", name);
+							return b;
+						} else if(check_user_passwd(name, remove_creturn(pass), "./users.log")==1) {
+							sprintf(b,"PRIVMSG %s :Wrong password. (%s)\r\n", name, remove_creturn(pass));
+							return b;
+						}
+						
+						if(check_channel_owner(name, topicchan, "./owners.log")==1) {
+							sprintf(b,"PRIVMSG %s :You're not the channel owner!\r\n", name);
+							return b;
+						} else if(check_channel_owner(name, topicchan, "./owners.log")==2) {
+							sprintf(b,"PRIVMSG %s :Channel not registered!\r\n", name);
 							return b;
 						} else {
-							if(set_topic(topicchan, topic, "./channels.log")==0) {
-								
-								sprintf(b,"JOIN %s\r\nTOPIC %s :%s\r\nPRIVMSG %s :Topic for %s set to \"%s\".\r\n", topicchan, topicchan, topic, name, topicchan, topic);
-								return b;
-							}
-							else
-							{
-								sprintf(b,"PRIVMSG %s :Error setting channel topic!\r\n", name);
-								return b;
-							}
+							topic[strlen(topic)-1] = 0; /* strip last quote from string */
+							sprintf(b,"JOIN %s\r\nTOPIC %s :%s\r\nPRIVMSG %s :Topic for %s set to \"%s\".\r\n", topicchan, topicchan, topic, name, topicchan, topic);
+							return b;
 						}
 						
 					}
 					
-					if(strncmp(msg, "@claim", 6)==0) {
+					if(strncmp(msg, "@release", 8)==0) {
 						e = strchr(msg, ' ');
 						if(!e) {
 							sprintf(b,"PRIVMSG %s :You must provide a username.\r\n", name);
@@ -211,7 +228,7 @@ char *process_string(char *in, int n) {
 						}
 						
 						if(check_user_passwd(e, remove_creturn(pass), "./users.log")==2) {
-							sprintf(b,"PRIVMSG %s :This user does not exist\r\n", name);
+							sprintf(b,"PRIVMSG %s :This user is not registered.\r\n", name);
 							return b;
 						}
 						if(check_user_passwd(e, remove_creturn(pass), "./users.log")==1) {
@@ -225,7 +242,7 @@ char *process_string(char *in, int n) {
 						
 					}
 					
-					if(strncmp(msg, "@grab", 5)==0) {
+					if(strncmp(msg, "@claim", 6)==0) {
 						
 						e = strchr(msg, ' ');
 						if(!e)
@@ -250,7 +267,7 @@ char *process_string(char *in, int n) {
 						}
 						
 						if(set_channel_owner(name, e, "./owners.log")==0) {
-							sprintf(b,"PRIVMSG %s :You now own %s\r\n", name, e);
+							sprintf(b,"JOIN %s\r\nPRIVMSG %s :You now own %s\r\n", remove_creturn(e), name, e);
 							return b;
 						} else {
 							sprintf(b,"PRIVMSG %s :Failed to set you as owner (%s)\r\n", name, remove_creturn(e));
@@ -348,7 +365,7 @@ int main(int argc, char **argv) {
 	irc_send(socketfd, c);
 
 	/* do the service jobs */
-	if(set_channels(socketfd, "./channels.log") == 2) {
+	if(join_channels(socketfd, "./owners.log") == 2) {
 		return 1;
 	}
 

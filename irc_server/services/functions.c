@@ -64,15 +64,14 @@ int rand_int() {
 	return r+1;
 }
 
-int set_channels(int fd, char *filefd) {
+int join_channels(int fd, char *filefd) {
 	FILE *filename = fopen(filefd, "r");
 	
-	char *search = "¤";
+	char *search = " ";
 	
 	if(filename != NULL) {
 		/* buffer for each topic line */
 		char line[2048];
-		char topic[2048];
 		char channel[256];
 		char sendbuf[2305];
 		
@@ -83,18 +82,13 @@ int set_channels(int fd, char *filefd) {
 				continue;
 			}
 			
-			char *linetok = strtok(line, search);
+			char *linetok;
+			linetok = strtok(line, search);
 			
-			/* join channel before changing topic */
+			/* join the channels!*/
 			sprintf(sendbuf, "JOIN %s\r\n", linetok);
 			irc_send(fd, sendbuf);
-			sprintf(channel, "%s", linetok);
-			
-			linetok = strtok(NULL, search);
-			sprintf(topic, "%s", linetok);
-			
-			sprintf(sendbuf, "TOPIC %s :%s\r\n", channel, topic);
-			irc_send(fd, sendbuf);
+			sleep(1);
 		}
 		
 	}
@@ -102,6 +96,7 @@ int set_channels(int fd, char *filefd) {
 	{
 		return 1;
 	}
+	
 	return 0;
 }
 
@@ -159,6 +154,38 @@ int check_user_passwd(char *nick, const char *pass, char *filefd) {
 	return 2;
 }
 
+int check_channel_owner(char *nick, const char *channel, char *filefd) {
+	FILE *file;
+	
+	char line[1024];
+	if((file = fopen(filefd, "r"))) {
+		while(fgets(line, sizeof(line), file)!=NULL) {
+			/* check if user exists */
+			char *dotok = strtok(line, " ");
+			if(strncmp(channel, dotok, strlen(channel))==0) {
+				dotok = strtok(NULL, " ");
+				if(strncmp(nick, dotok, strlen(nick))==0) {
+					/* owns channel */
+					fclose(file);
+					return 0;
+				}
+				else
+				{
+					/* doesn't */
+					fclose(file);
+					return 1;
+				}
+			}
+		}
+		fclose(file);
+	}
+	
+	/* channel not registered */
+	return 2;
+}
+
+// Not using this anymore
+/*
 int set_topic(char *channel, char *topic, char *filefd) {
 	FILE *file;
 	
@@ -182,7 +209,7 @@ int set_topic(char *channel, char *topic, char *filefd) {
 	
 	return 1;
 }
-
+*/
 
 int register_nick(char *nick, const char *pass, char *filefd) {
 	FILE *file;
