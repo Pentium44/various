@@ -1,0 +1,41 @@
+#!/bin/bash
+# Simple web server based from Paul Buchheit's netcat HTTPd
+# http://paulbuchheit.blogspot.ro/2007/04/webserver-in-bash.html
+
+# Execute like so: bash_httpd 8888 /tmp/htdocs
+# whereas 8888 is the port and "/tmp/htdocs" is the html root directoy.
+
+DOC_ROOT=$2
+RESP=/tmp/bashhttpdtmp
+[ -p $RESP ] || mkfifo $RESP
+
+while true ; do
+(cat $RESP) | nc -l -p 8888 | sed -ue 's/\r//g' | (
+	REQ=`while read L && [ -n "$L" ] ; do echo "$L" ; done`
+	SERV_PATH=`echo "$REQ" | head -1 | cut -f2 -d" " `
+	FULL_PATH="$DOC_ROOT$SERV_PATH"
+	echo $FULL_PATH
+	
+	if [ -f "$FULL_PATH" ]; then
+		RESP_BODY=`cat $FULL_PATH`
+		RESP_CODE="200 OK"
+	else
+		RESP_BODY="not found<br/><br/>$REQ"
+		RESP_CODE="404 NOT FOUND"
+	fi
+	
+	echo "[`date '+%Y-%m-%d %H:%M:%S'`] $REQ" | head -1
+	
+	cat > $RESP <<EOF
+	HTTP/1.0 $RESP_CODE
+	Cache-Control: private
+	Content-Type: text/html
+	Server: bash/2.0
+	Connection: Close
+	Content-Length: ${#RESP_BODY}
+
+	$RESP_BODY
+EOF
+)
+
+done 
